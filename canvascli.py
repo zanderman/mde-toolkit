@@ -38,8 +38,17 @@ if config.CANVAS_API_TOKEN is None:
 # Initialize a new Canvas object
 canvas = Canvas(config.CANVAS_API_URL, config.CANVAS_API_TOKEN)
 
+# Get the desired course.
 course = canvas.get_course(COURSE_ID)
 print(course.name, course.id)
+
+## Get all students in the course. 
+# The `PaginatedList` type lazily loads elements.
+# Must use list comprehension to force it to load everything.
+users = [user for user in course.get_users(enrollment_type=['student'])]
+print(f'got users {len(users)}')
+for user in users:
+    print(f"name={user.name}, id={user.id}")
 
 # courses = canvas.get_courses()
 # for course in courses:
