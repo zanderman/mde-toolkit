@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 canvasapi = "*"
 python-dotenv = "*"
+tqdm = "*"
 
 [dev-packages]
 
