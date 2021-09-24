@@ -118,8 +118,9 @@ def users_groups(canvas, course_id):
 @click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
 @click.option('--report', '-r', is_flag=True)
 @click.option('--write-files','-w', is_flag=True)
+@click.option('--sort-by', '-s', type=click.Choice(['none', 'user_name', 'group_name', 'user_id', 'group_id'], case_sensitive=False), default='none')
 @pass_canvas
-def bin_students(canvas, course_id, bins, delimiter, report, write_files):
+def bin_students(canvas, course_id, bins, delimiter, report, write_files, sort_by):
 
     # Bins provided as integer number of bins.
     try:
@@ -138,8 +139,19 @@ def bin_students(canvas, course_id, bins, delimiter, report, write_files):
     # Get linked users to groups.
     users, groups, user_to_group = mdetk.get_users_by_group(canvas, course_id)
 
+    # Organize list of user IDs, in various sorting orders.
+    if sort_by == 'user_name':
+        uids = np.array(sorted(users.keys(), key=lambda uid: users[uid].sortable_name))
+    elif sort_by == 'group_name':
+        uids = np.array(sorted(users.keys(), key=lambda uid: groups[user_to_group[uid]].name))
+    if sort_by == 'user_id':
+        uids = np.array(sorted(users.keys(), key=lambda uid: uid))
+    elif sort_by == 'group_id':
+        uids = np.array(sorted(users.keys(), key=lambda uid: user_to_group[uid]))
+    else:
+        uids = np.array(list(users.keys()))
+
     # Split the users into bins.
-    uids = np.array(list(users.keys()))
     nuids = len(uids)
     sections = [int(np.ceil(nuids*(p+(sum(percentages[:i]) if i > 0 else 0)))) for i, p in enumerate(percentages[:-1])]
     binned = np.split(uids, sections)
