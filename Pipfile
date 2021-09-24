@@ -8,6 +8,7 @@ canvasapi = "*"
 python-dotenv = "*"
 tqdm = "*"
 click = "*"
+numpy = "*"
 
 [dev-packages]
 
