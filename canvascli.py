@@ -117,8 +117,9 @@ def users_groups(canvas, course_id):
 @click.option('--bins', '-b', required=True, type=str, help='number of even-sized bins, or space-delimited list of bin size percentages')
 @click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
 @click.option('--report', '-r', is_flag=True)
+@click.option('--write-files','-w', is_flag=True)
 @pass_canvas
-def bin_students(canvas, course_id, bins, delimiter, report):
+def bin_students(canvas, course_id, bins, delimiter, report, write_files):
 
     # Bins provided as integer number of bins.
     try:
@@ -153,18 +154,37 @@ def bin_students(canvas, course_id, bins, delimiter, report):
         for i, bin in enumerate(binned):
             print(f"Bin {i+1}: {len(bin)} users ({percentages[i]*100}%)", file=sys.stderr)
 
-    # Output the binning results.
-    for i, bin in enumerate(binned):
-        for j, uid in enumerate(bin):
-            records = [
-                i+1,
-                j+1,
-                uid,
-                users[uid].sortable_name,
-                groups[user_to_group[uid]].id,
-                groups[user_to_group[uid]].name,
-            ]
-            print(delimiter.join(str(r) for r in records))
+    header_items = ['bin id', 'item number', 'user id', 'user name', 'group id', 'group name']
+    header = delimiter.join(header_items)
+    if write_files:
+        # Output the binning results.
+        for i, bin in enumerate(binned):
+            with open(f"bin_{i+1}.csv", 'w') as f:
+                f.write(f"{header}")
+                for j, uid in enumerate(bin):
+                    records = [
+                        i+1,
+                        j+1,
+                        uid,
+                        users[uid].sortable_name,
+                        groups[user_to_group[uid]].id,
+                        groups[user_to_group[uid]].name,
+                    ]
+                    f.write(f"\n{delimiter.join(str(r) for r in records)}")
+    else:
+        # Output the binning results.
+        print(f"{header}")
+        for i, bin in enumerate(binned):
+            for j, uid in enumerate(bin):
+                records = [
+                    i+1,
+                    j+1,
+                    uid,
+                    users[uid].sortable_name,
+                    groups[user_to_group[uid]].id,
+                    groups[user_to_group[uid]].name,
+                ]
+                print(f"{delimiter.join(str(r) for r in records)}")
 
 
 if __name__ == '__main__':
