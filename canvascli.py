@@ -14,6 +14,8 @@ from dataclasses import dataclass, asdict
 from dotenv import dotenv_values
 import logging
 import mdetk
+import numpy as np
+import sys
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -108,6 +110,61 @@ def users_groups(canvas, course_id):
     # Print all users and groups.
     for sid, s in sorted_users:
         print(sid, s.sortable_name, '-->', groups[user_to_group[sid]].id, groups[user_to_group[sid]].name)
+
+
+@cli.command()
+@click.option('--course-id', '-c', required=True, type=int)
+@click.option('--bins', '-b', required=True, type=str, help='number of even-sized bins, or space-delimited list of bin size percentages')
+@click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
+@click.option('--report', '-r', is_flag=True)
+@pass_canvas
+def bin_students(canvas, course_id, bins, delimiter, report):
+
+    # Bins provided as integer number of bins.
+    try:
+        bins = int(bins)
+        percentages = [1./bins for _ in range(bins)]
+
+    # Bins provided as space-delimited list of size percentages.
+    except:
+        percentages = [float(s) for s in bins.split(' ')]
+        bins = len(percentages)
+
+    # Verify that percentages sum to 100.
+    if sum(percentages) != 1.0:
+        raise ValueError('Percentages must sum to 1')
+
+    # Get linked users to groups.
+    users, groups, user_to_group = mdetk.get_users_by_group(canvas, course_id)
+
+    # Split the users into bins.
+    uids = np.array(list(users.keys()))
+    nuids = len(uids)
+    sections = [int(np.ceil(nuids*(p+(sum(percentages[:i]) if i > 0 else 0)))) for i, p in enumerate(percentages[:-1])]
+    binned = np.split(uids, sections)
+
+    # Summarize the binning results if necessary.
+    if report:
+        print(f"Summary", file=sys.stderr)
+        print(f"=======", file=sys.stderr)
+        print(f"Groups: {len(groups)}", file=sys.stderr)
+        print(f"Users: {nuids}", file=sys.stderr)
+        print(f"Bins: {bins}", file=sys.stderr)
+        for i, bin in enumerate(binned):
+            print(f"Bin {i+1}: {len(bin)} users ({percentages[i]*100}%)", file=sys.stderr)
+
+    # Output the binning results.
+    for i, bin in enumerate(binned):
+        for j, uid in enumerate(bin):
+            records = [
+                i+1,
+                j+1,
+                uid,
+                users[uid].sortable_name,
+                groups[user_to_group[uid]].id,
+                groups[user_to_group[uid]].name,
+            ]
+            print(delimiter.join(str(r) for r in records))
 
 
 if __name__ == '__main__':
