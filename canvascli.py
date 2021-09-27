@@ -79,11 +79,29 @@ def groups(canvas, course_id):
 
 @cli.command()
 @click.option('--course-id', '-c', required=True, type=int)
+@click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
+@click.option('--sort-by', '-s', type=click.Choice(['user_name', 'user_id'], case_sensitive=False), default='user_id', show_default=True)
 @pass_canvas
-def students(canvas, course_id):
+def students(canvas, course_id, delimiter, sort_by):
+
+    # Get course object and all student objects.
     course = canvas.get_course(course_id)
-    for student in course.get_users(enrollment_type=['student']):
-        print(f"{student.id},{student.sortable_name}")
+    students = [student for student in course.get_users(enrollment_type=['student'])]
+
+    # Set sorting key.
+    if sort_by == 'user_name':
+        key = lambda student: student.sortable_name
+    elif sort_by == 'user_id':
+        key = lambda student: student.id
+    else:
+        raise ValueError('sorting key not defined')
+
+    # Print students in sorted order.
+    header_items = ['user id', 'user name']
+    header = delimiter.join(header_items)
+    print(header)
+    for student in sorted(students, key=key):
+        print(f"{student.id}{delimiter}{student.sortable_name}")
 
 
 @cli.command()
@@ -118,7 +136,7 @@ def users_groups(canvas, course_id):
 @click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
 @click.option('--report', '-r', is_flag=True)
 @click.option('--write-files','-w', is_flag=True)
-@click.option('--sort-by', '-s', type=click.Choice(['none', 'user_name', 'group_name', 'user_id', 'group_id'], case_sensitive=False), default='none')
+@click.option('--sort-by', '-s', type=click.Choice(['none', 'user_name', 'group_name', 'user_id', 'group_id'], case_sensitive=False), default='none', show_default=True)
 @pass_canvas
 def bin_students(canvas, course_id, bins, delimiter, report, write_files, sort_by):
 
