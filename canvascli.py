@@ -184,7 +184,7 @@ def bin_students(canvas, course_id, bins, delimiter, report, write_files, sort_b
         for i, bin in enumerate(binned):
             print(f"Bin {i+1}: {len(bin)} users ({percentages[i]*100}%)", file=sys.stderr)
 
-    header_items = ['bin id', 'item number', 'user id', 'user name', 'group id', 'group name']
+    header_items = ['Bin ID', 'Item Number', 'User ID', 'User Name', 'Group ID', 'Group Name']
     header = delimiter.join(header_items)
     if write_files:
         # Output the binning results.
