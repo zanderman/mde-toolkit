@@ -106,6 +106,32 @@ def students(canvas, course_id, delimiter, sort_by):
 
 @cli.command()
 @click.option('--course-id', '-c', required=True, type=int)
+@click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
+@click.option('--sort-by', '-s', type=click.Choice(['name', 'id'], case_sensitive=False), default='id', show_default=True)
+@pass_canvas
+def assignments(canvas, course_id, delimiter, sort_by):
+
+    # Set sorting key.
+    if sort_by == 'name':
+        key = lambda assignment: assignment.name
+    elif sort_by == 'id':
+        key = lambda assignment: assignment.id
+    else:
+        raise ValueError('sorting key not defined')
+
+    # Get course.
+    course = canvas.get_course(course_id)
+
+    # Print students in sorted order.
+    header_items = ['assignment id', 'assignment name']
+    header = delimiter.join(header_items)
+    print(header)
+    for assignment in course.get_assignments():
+        print(f"{assignment.id}{delimiter}{assignment.name}")
+
+
+@cli.command()
+@click.option('--course-id', '-c', required=True, type=int)
 @click.option('--assignment-id', '-a', required=True, type=int)
 @pass_canvas
 def assignment(canvas, course_id, assignment_id):
