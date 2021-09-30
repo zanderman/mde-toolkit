@@ -142,6 +142,15 @@ def assignment(canvas, course_id, assignment_id):
 
 @cli.command()
 @click.option('--course-id', '-c', required=True, type=int)
+@click.option('--assignment-id', '-a', required=True, type=int)
+@click.option('--student-id', '-s', required=True, type=int)
+@pass_canvas
+def url_speed_grader(canvas, course_id, assignment_id, student_id):
+    print(mdetk.speed_grader_url(canvas, course_id, assignment_id, student_id))
+
+
+@cli.command()
+@click.option('--course-id', '-c', required=True, type=int)
 @pass_canvas
 def users_groups(canvas, course_id):
 
