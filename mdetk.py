@@ -48,3 +48,7 @@ def get_users_by_group(canvas: Canvas, course_id: int) -> Tuple[Dict[int,User],D
             student_to_group[u.id] = g.id
 
     return students, groups, student_to_group
+
+
+def speed_grader_url(canvas: Canvas, course_id: int, assignment_id: int, student_id: int):
+    return f"{canvas._Canvas__requester.original_url}/courses/{course_id}/gradebook/speed_grader?assignment_id={assignment_id}&student_id={student_id}"
