@@ -252,6 +252,38 @@ def bin_students(canvas, course_id, bins, delimiter, report, write_files, sort_b
                 print(f"{delimiter.join(str(r) for r in records)}")
 
 
+@cli.command()
+@click.option('--course-id', '-c', required=True, type=int)
+@click.option('--assignment-id', '-a', required=True, type=str, help="single assignment ID or space-delimited list of assignment IDs")
+@click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
+@click.option('--input-file','-i', type=click.File('r'), default=sys.stdin)
+@click.option('--header/--no-header', default=True)
+@pass_canvas
+def quick_urls(canvas, course_id, assignment_id, delimiter, input_file, header):
+    """Reads a student binning from either a file or STDIN (default) and adds columns for quick URLs to the given assignments on the right of existing data.
+    """
+
+    # Assignment ID as either a single number, or space-delimited string of numbers.
+    try:
+        assignment_ids = [int(assignment_id)]
+    except:
+        assignment_ids = [int(aid) for aid in assignment_id.strip().split(' ')]
+
+    with input_file as f:
+        for i, line in enumerate(f):
+            line = line.strip()
+            if header and i == 0:
+                headers = [f"assignment {aid}" for aid in assignment_ids]
+                print(f"{line}{delimiter}{delimiter.join(headers)}")
+            elif line: # Only use non-empty lines.
+                items = line.split(delimiter)
+                urls = [
+                    mdetk.speed_grader_url(canvas, course_id, aid, int(items[2]))
+                    for aid in assignment_ids
+                ]
+                print(f"{line}{delimiter}{delimiter.join(urls)}")
+
+
 if __name__ == '__main__':
     cli()
 
