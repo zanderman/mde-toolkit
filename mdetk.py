@@ -95,3 +95,9 @@ def build_directory_structure_from_graph(graph: nx.MultiGraph, source: str) -> d
 
     return paths
 
+
+if __name__ == '__main__':
+    tree = ElementTree.parse("/Volumes/GoogleDrive/Shared drives/ECE MDE /Drive Architecture/mde_drive_architecture.drawio.xml")
+    graph = parse_drive_architecture_xml(tree)
+    source = 'jZPj-5loQ12BBoLkCjAN-1' # Root node for hierarchy.
+    paths = build_directory_structure_from_graph(graph, source)
