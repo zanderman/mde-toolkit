@@ -78,3 +78,20 @@ def parse_drive_architecture_xml(tree: ElementTree) -> nx.MultiGraph:
     graph.add_nodes_from(nodes)
     graph.add_edges_from(edges)
     return graph
+
+
+import os
+def build_directory_structure_from_graph(graph: nx.MultiGraph, source: str) -> dict:
+
+    def get_node_value(node: str) -> str:
+        return graph.nodes[node]['attributes']['value']
+
+    paths = {}
+    paths[source] = get_node_value(source)
+    iter = nx.bfs_successors(graph, source)
+    for node,successors in iter:
+        for s in successors:
+            paths[s] = os.path.join(paths[node], get_node_value(s))
+
+    return paths
+
