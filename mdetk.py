@@ -52,3 +52,29 @@ def get_users_by_group(canvas: Canvas, course_id: int) -> Tuple[Dict[int,User],D
 
 def speed_grader_url(canvas: Canvas, course_id: int, assignment_id: int, student_id: int):
     return f"{canvas._Canvas__requester.original_url}/courses/{course_id}/gradebook/speed_grader?assignment_id={assignment_id}&student_id={student_id}"
+
+
+from xml.etree import ElementTree
+from xml.sax import saxutils
+import networkx as nx
+def parse_drive_architecture_xml(tree: ElementTree) -> nx.MultiGraph:
+    root = tree.getroot()
+
+    nodes = []
+    edges = []
+    for element in root.findall('./diagram/mxGraphModel/root/mxCell'):
+
+        # Node.
+        if 'value' in element.attrib:
+            element.attrib['value'] = saxutils.unescape(element.attrib['value'])
+            nodes.append((element.attrib['id'], {'attributes': element.attrib}))
+
+        # Arrows for edges.
+        elif 'source' in element.attrib or 'target' in element.attrib:
+            edges.append((element.attrib['source'], element.attrib['target']))
+
+    # Build network graph.
+    graph = nx.MultiGraph()
+    graph.add_nodes_from(nodes)
+    graph.add_edges_from(edges)
+    return graph
