@@ -70,15 +70,23 @@ def courses(canvas):
 
 @cli.command()
 @click.option('--course-id', '-c', required=True, type=int)
-@click.option('--format', '-f', required=False, type=bool, is_flag=True)
+@click.option('--format', '-f', required=False, type=bool, is_flag=True, help='Format group name to be easily parsable by software')
+@click.option('--no-id', '-n', required=False, type=bool, is_flag=True, help='Removes group ID from output')
 @pass_canvas
-def groups(canvas, course_id, format):
+def groups(canvas, course_id, format, no_id):
     course = canvas.get_course(course_id)
     for group in course.get_groups():
         group_name = group.name
+
+        # Format group name.
         if format:
             group_name = mdetk.format_group_name(group_name)
-        print(f"{group.id},{group_name}")
+
+        # Remove ID from output.
+        if no_id:
+            print(f"{group_name}")
+        else:
+            print(f"{group.id},{group_name}")
 
 
 @cli.command()
