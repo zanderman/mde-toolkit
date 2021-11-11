@@ -6,9 +6,11 @@ from canvasapi import Canvas
 from canvasapi.user import User
 from canvasapi.group import Group
 import logging
+import networkx as nx
+import os
 from typing import Dict, Tuple
-
-from networkx.generators.classic import empty_graph
+from xml.etree import ElementTree
+from xml.sax import saxutils
 
 logger = logging.getLogger()
 
@@ -87,9 +89,7 @@ def speed_grader_url(canvas: Canvas, course_id: int, assignment_id: int, student
     return f"{canvas._Canvas__requester.original_url}/courses/{course_id}/gradebook/speed_grader?assignment_id={assignment_id}&student_id={student_id}"
 
 
-from xml.etree import ElementTree
-from xml.sax import saxutils
-import networkx as nx
+
 def parse_drive_architecture_xml(tree: ElementTree) -> nx.MultiGraph:
     root = tree.getroot()
 
@@ -113,7 +113,6 @@ def parse_drive_architecture_xml(tree: ElementTree) -> nx.MultiGraph:
     return graph
 
 
-import os
 def build_directory_structure_from_graph(graph: nx.MultiGraph, source: str) -> dict:
 
     def get_node_value(node: str) -> str:
@@ -127,20 +126,3 @@ def build_directory_structure_from_graph(graph: nx.MultiGraph, source: str) -> d
             paths[s] = os.path.join(paths[node], get_node_value(s))
 
     return paths
-
-
-def make_directories_from_graph(graph: nx.MultiGraph, paths: dict, root: str):
-    for key, path in paths.items():
-        newpath = os.path.join(root, path)
-        if not os.path.exists(newpath):
-            os.makedirs(newpath)
-            logger.info(newpath)
-
-
-if __name__ == '__main__':
-    tree = ElementTree.parse("/Volumes/GoogleDrive/Shared drives/ECE MDE /Drive Architecture/mde_drive_architecture.drawio.xml")
-    graph = parse_drive_architecture_xml(tree)
-    source = 'jZPj-5loQ12BBoLkCjAN-1' # Root node for hierarchy.
-    paths = build_directory_structure_from_graph(graph, source)
-    root = "/Volumes/GoogleDrive/Shared drives/ECE MDE /Drive Architecture/architecture_test"
-    make_directories_from_graph(graph, paths, root)
