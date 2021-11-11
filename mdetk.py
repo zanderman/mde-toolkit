@@ -122,7 +122,7 @@ def build_directory_structure_from_graph(graph: nx.MultiGraph, source: str) -> d
     return paths
 
 
-def build_directories(graph: nx.MultiGraph, paths: dict, root: str):
+def make_directories_from_graph(graph: nx.MultiGraph, paths: dict, root: str):
     for key, path in paths.items():
         newpath = os.path.join(root, path)
         if not os.path.exists(newpath):
@@ -136,4 +136,4 @@ if __name__ == '__main__':
     source = 'jZPj-5loQ12BBoLkCjAN-1' # Root node for hierarchy.
     paths = build_directory_structure_from_graph(graph, source)
     root = "/Volumes/GoogleDrive/Shared drives/ECE MDE /Drive Architecture/architecture_test"
-    build_directories(graph, paths, root)
+    make_directories_from_graph(graph, paths, root)
