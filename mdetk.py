@@ -8,7 +8,33 @@ from canvasapi.group import Group
 import logging
 from typing import Dict, Tuple
 
+from networkx.generators.classic import empty_graph
+
 logger = logging.getLogger()
+
+
+def format_group_name(group: str) -> str:
+    """Reformats given group name so that it can be used for software purposes."""
+    out = group.strip()
+
+    # Change special characters.
+    out = out.replace('&', 'and')
+
+    # Remove certain characters entirely.
+    emptychars = '~!@#$%^&*()-+`.,;:/?\'\"'
+    for c in emptychars:
+        out = out.replace(c, '')
+
+    # Convert spaces to underscores.
+    out = out.replace(' ', '_')
+
+    # Remove duplicate separators.
+    out = '_'.join(filter(None, out.split('_')))
+
+    # Make entire string lower-case.
+    out = out.lower()
+
+    return out
 
 
 def get_users_by_group(canvas: Canvas, course_id: int) -> Tuple[Dict[int,User],Dict[int,Group],Dict[int,int]]:
