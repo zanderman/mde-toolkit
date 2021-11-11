@@ -269,7 +269,7 @@ def bin_students(canvas, course_id, bins, delimiter, report, write_files, sort_b
 @click.option('--course-id', '-c', required=True, type=int)
 @click.option('--assignment-id', '-a', required=True, type=str, help="single assignment ID or space-delimited list of assignment IDs")
 @click.option('--delimiter','-d', type=str, default='|', help="Output record delimiter")
-@click.option('--input-file','-i', type=click.File('r'), default=sys.stdin)
+@click.option('--input-file','-i', type=click.File('r'), default=sys.stdin, help="Binning file to use as input (defaults to STDIN)")
 @click.option('--header/--no-header', default=True)
 @pass_canvas
 def quick_urls(canvas, course_id, assignment_id, delimiter, input_file, header):
