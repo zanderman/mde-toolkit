@@ -21,7 +21,10 @@ def format_group_name(group: str) -> str:
     out = out.replace('&', 'and')
 
     # Remove certain characters entirely.
-    emptychars = '~!@#$%^&*()-+`.,;:/?\'\"'
+    # Note that "-" is not included in this list,
+    # it is reserved to separate sponsor name
+    # from project name.
+    emptychars = '~!@#$%^&*()+`.,;:/?\'\"'
     for c in emptychars:
         out = out.replace(c, '')
 
@@ -30,6 +33,10 @@ def format_group_name(group: str) -> str:
 
     # Remove duplicate separators.
     out = '_'.join(filter(None, out.split('_')))
+
+    # Replace oddly-formatted dash with just a simple dash.
+    # This is to differentiate sponsor name from team name.
+    out = out.replace('_-_', '-')
 
     # Make entire string lower-case.
     out = out.lower()
