@@ -16,6 +16,7 @@ import logging
 import mdetk
 import numpy as np
 import sys
+import os
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -294,6 +295,23 @@ def quick_urls(canvas, course_id, assignment_id, delimiter, input_file, header):
                     for aid in assignment_ids
                 ]
                 print(f"{line}{delimiter}{delimiter.join(urls)}")
+
+
+@cli.command()
+@click.option('--course-id', '-c', required=True, type=int)
+@click.option('--output', '-o', required=True, type=click.Path(file_okay=False))
+@pass_canvas
+def make_group_dirs(canvas, course_id, output):
+    course = canvas.get_course(course_id)
+    for group in course.get_groups():
+        group_name = mdetk.format_group_name(group.name)
+
+        # Build directory path.
+        path = os.path.join(output, group_name)
+
+        # Make directory.
+        print(path)
+        os.makedirs(path)
 
 
 if __name__ == '__main__':
