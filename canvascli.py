@@ -299,9 +299,16 @@ def quick_urls(canvas, course_id, assignment_id, delimiter, input_file, header):
 
 @cli.command()
 @click.option('--course-id', '-c', required=True, type=int)
-@click.option('--output', '-o', required=True, type=click.Path(file_okay=False))
+@click.option('--output', '-o', required=True, type=click.Path(file_okay=False), help="Root path for directories.")
+@click.option('--dry-run', required=False, type=bool, is_flag=True, help='Show what would be created, without making any directories.')
 @pass_canvas
-def make_group_dirs(canvas, course_id, output):
+def make_group_dirs(canvas, course_id, output, dry_run):
+    """Creates directories based on group names for a given Canvas course.
+
+    Usage:
+        Make directories for course '136333' at the current path './'
+            $ python canvascli.py make-group-dirs -c 136333 -o ./
+    """
     course = canvas.get_course(course_id)
     for group in course.get_groups():
         group_name = mdetk.format_group_name(group.name)
@@ -311,7 +318,8 @@ def make_group_dirs(canvas, course_id, output):
 
         # Make directory.
         print(path)
-        os.makedirs(path)
+        if not dry_run:
+            os.makedirs(path)
 
 
 if __name__ == '__main__':
