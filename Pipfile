@@ -9,8 +9,10 @@ python-dotenv = "*"
 tqdm = "*"
 click = "*"
 numpy = "*"
+networkx = "*"
 
 [dev-packages]
+matplotlib = "*"
 
 [requires]
 python_version = "3.9"
